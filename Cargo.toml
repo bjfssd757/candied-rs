@@ -2,6 +2,9 @@
 name = "candied"
 version = "0.1.0"
 edition = "2024"
+repository = "https://github.com/bjfssd757/candied-rs"
+description = "Candied - library that provides macros to reduce code size and adds syntactic sugar."
+license = "MIT"
 
 [workspace]
 members = [
