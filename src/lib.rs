@@ -24,12 +24,22 @@
 /// println!("{:?}\n{:?}\n{:?}", v, vv, vvv);
 /// ```
 macro_rules! vecg {
+    (for $x: ident in $exp:expr) => {
+        vecg![$x => for $x in $exp]
+    };
+
     (for $x:ident in $exp:expr; if $cond:expr) => {
         vecg![$x => for $x in $exp; if $cond]
     };
 
-    (for $x:ident in $exp:expr) => {
-        vecg![$x => for $x in $exp]
+    ($res:expr => for $x:ident in $exp:expr) => {
+        {
+            let mut v = Vec::new();
+            for $x in $exp {
+                v.push($res);
+            }
+            v
+        }
     };
 
     ($res:expr => for $x:ident in $exp:expr; if $cond:expr) => {
@@ -44,13 +54,47 @@ macro_rules! vecg {
         }
     };
 
-    ($res:expr => for $x:ident in $exp:expr) => {
+
+    ($($res:expr),+ => for $x:ident in $exp:expr $(, for $rest_x:ident in $rest_exp:expr)*; if $cond:expr) => {
+        {
+            let mut v = Vec:: new();
+            vecg![@NESTED v, ($($res),+), $cond => for $x in $exp $(, for $rest_x in $rest_exp)*];
+            v
+        }
+    };
+
+    ($($res:expr),+ => for $x:ident in $exp:expr $(, for $rest_x:ident in $rest_exp:expr)+) => {
         {
             let mut v = Vec::new();
-            for $x in $exp {
-                v.push($res);
-            }
+            vecg![@NESTED_NO_COND v, ($($res),+) => for $x in $exp $(, for $rest_x in $rest_exp)+];
             v
+        }
+    };
+
+
+    (@NESTED $v: ident, ($($res:expr),+), $cond:expr => for $x: ident in $exp:expr) => {
+        for $x in $exp {
+            if $cond {
+                $v.push(($($res),+));
+            }
+        }
+    };
+
+    (@NESTED $v: ident, ($($res:expr),+), $cond:expr => for $x:ident in $exp:expr, $(for $rest_x:ident in $rest_exp:expr),+) => {
+        for $x in $exp {
+            vecg![@NESTED $v, ($($res),+), $cond => $(for $rest_x in $rest_exp),+];
+        }
+    };
+
+    (@NESTED_NO_COND $v:ident, ($($res:expr),+) => for $x: ident in $exp:expr) => {
+        for $x in $exp {
+            $v.push(($($res),+));
+        }
+    };
+
+    (@NESTED_NO_COND $v:ident, ($($res:expr),+) => for $x: ident in $exp:expr, $(for $rest_x: ident in $rest_exp:expr),+) => {
+        for $x in $exp {
+            vecg![@NESTED_NO_COND $v, ($($res),+) => $(for $rest_x in $rest_exp),+];
         }
     };
 }
@@ -168,5 +212,30 @@ macro_rules! defer {
             }
             Defer(Some(|| { $($body)* }))
         };
+    };
+}
+
+#[macro_export]
+macro_rules! candied_or {
+    ($v:expr => $def:expr) => {
+        match $v {
+            Some(val) => val,
+            None => $def,
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! candied_repeat {
+    ($count:expr, |$iterator:ident|, $exp:expr) => {
+        for $iterator in 0..$count {
+            $exp
+        }
+    };
+
+    ($count:expr, $exp:expr) => {
+        for _ in 0..$count {
+            $exp
+        }
     };
 }

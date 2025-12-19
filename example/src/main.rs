@@ -1,4 +1,4 @@
-use candied::{defer, for_all, for_all_ret, switch, t, vecg};
+use candied::*;
 
 fn add2(a: &mut i32) -> i32 {
     *a += 2;
@@ -22,7 +22,9 @@ fn main() {
     let vv = vecg![for x in 0..100];
     let v = vecg![for x in 0..11; if x % 2 == 0 && x % 3 == 0];
     let vvv = vecg![x * 2 => for x in 0..10; if x % 3 == 0];
-    println!("{:?}\n{:?}\n{:?}", v, vv, vvv);
+    let vvvv = vecg![x * 2, y => for x in 0..=10, for y in 0..=15; if x % 2 == 0 && y % 3 == 0];
+    println!("{:?}\n{:?}\n{:?}\n{:?}", v, vv, vvv, vvvv);
+    let _vvvvv = vecg![x * 3, y / 2, z + 1 => for x in 0..=10, for y in 10..=100, for z in -5i32..=-1; if x % 2 == 0 && y % 7 == 0 || z.abs() > 3];
 
     let mut a = 12;
     let mut b = 122;
@@ -46,4 +48,10 @@ fn main() {
     });
 
     t!(d == 0 => println!("D = ZERO") , println!("D != ZERO"));
+
+    let n: Option<i32> = None;
+    println!("{}", candied_or!(n => 12));
+
+    candied_repeat!(5, |i|, println!("{} iter", i));
+    candied_repeat!(6, println!("Hello!"));
 }
