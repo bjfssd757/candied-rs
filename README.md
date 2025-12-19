@@ -6,7 +6,7 @@ Candied - Rust library that provides macros to add more syntactic sugar and redu
 
 ## Table of Contents
 * [Functionality](#functionality)
-* Documentation
+* [Documentation](#documentation)
 
 ## Functionality
 
@@ -15,3 +15,7 @@ Candied - Rust library that provides macros to add more syntactic sugar and redu
 * Switch-case construct
 * Macro similar to the ternary operator
 * Macro calling a block of code when exiting the scope of the function or code block where it was called
+
+## Documentation
+
+Documentation is available here - https://docs.rs/candied/0.1.0/candied/
